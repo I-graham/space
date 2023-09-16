@@ -5,10 +5,7 @@ use crate::window::TextureType;
 
 #[derive(IntoStaticStr, EnumIter, Hash, PartialEq, Debug, Eq, Clone, Copy)]
 pub enum Texture {
-	Ant,
-	Swirl,
 	Flat,
-	Queen,
 }
 
 impl TextureType for Texture {
