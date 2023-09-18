@@ -30,9 +30,9 @@ impl GameObject for Parent {
 		None
 	}
 
-	fn render(&self, external: &External, out: &mut Vec<Instance>) {
+	fn render(&self, win: &mut Window) {
 		for child in &self.children {
-			child.render(external, out);
+			child.render(win);
 		}
 	}
 

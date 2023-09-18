@@ -8,7 +8,7 @@ pub use play::*;
 pub use std::sync::mpsc::Sender;
 pub use utils::*;
 
-use crate::window::{External, Instance};
+use crate::window::{External, Instance, Window};
 
 pub trait GameObject {
 	type Scene;
@@ -26,9 +26,9 @@ pub trait GameObject {
 		None
 	}
 
-	fn render(&self, external: &External, out: &mut Vec<Instance>) {
-		if let Some(inst) = self.instance(external) {
-			external.clip(out, inst);
+	fn render(&self, win: &mut Window) {
+		if let Some(inst) = self.instance(win.inputs()) {
+			win.clip(inst);
 		}
 	}
 

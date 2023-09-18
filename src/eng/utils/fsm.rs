@@ -32,9 +32,9 @@ pub trait Automaton {
 		None
 	}
 
-	fn render(&self, external: &External, out: &mut Vec<Instance>) {
-		if let Some(inst) = self.instance(external) {
-			external.clip(out, inst);
+	fn render(&self, win: &mut Window) {
+		if let Some(inst) = self.instance(win.inputs()) {
+			win.clip(inst);
 		}
 	}
 
@@ -62,8 +62,8 @@ impl<T: Automaton> GameObject for T {
 		Automaton::update(self, external, messenger)
 	}
 
-	fn render(&self, context: &External, out: &mut Vec<Instance>) {
-		Automaton::render(self, context, out)
+	fn render(&self, win: &mut Window) {
+		Automaton::render(self, win)
 	}
 
 	fn instance(&self, external: &External) -> Option<Instance> {

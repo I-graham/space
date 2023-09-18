@@ -6,6 +6,8 @@ use crate::window::TextureType;
 #[derive(IntoStaticStr, EnumIter, Hash, PartialEq, Debug, Eq, Clone, Copy)]
 pub enum Texture {
 	Flat,
+	Sun,
+	Ship,
 }
 
 impl TextureType for Texture {
@@ -19,6 +21,10 @@ impl TextureType for Texture {
 	}
 
 	fn frame_count(&self) -> u32 {
-		1
+		use Texture::*;
+		match self {
+			Ship => 7,
+			_ => 1,
+		}
 	}
 }

@@ -34,37 +34,36 @@ pub fn play<World: Root>() -> ! {
 	event_loop.run(move |event, _, flow| {
 		flow.set_poll();
 		match event {
-			Event::WindowEvent { event, window_id } if window_id == game.api.id() => match event {
+			Event::WindowEvent { event, window_id } if window_id == game.win.id() => match event {
 				WindowEvent::CloseRequested => {
 					flow.set_exit();
 				}
 
 				WindowEvent::Resized(dims) if dims.height != 0 && dims.width != 0 => {
-					game.api.resize(dims);
+					game.win.resize(dims);
 				}
 
 				WindowEvent::KeyboardInput { input, .. } => {
-					game.api.external.capture_key(input);
+					game.win.inputs_mut().capture_key(input);
 				}
 
 				WindowEvent::MouseWheel { delta, .. } => {
 					use winit::dpi::PhysicalPosition;
 					use winit::event::MouseScrollDelta::*;
-					game.api.external.scroll = match delta {
+					game.win.inputs_mut().scroll = match delta {
 						LineDelta(_hor, ver) => ver,
 						PixelDelta(PhysicalPosition { y, .. }) => y as f32,
 					};
 				}
 
 				WindowEvent::CursorMoved { position, .. } => {
-					game.api
-						.external
-						.capture_mouse(&position, game.api.external.win_size);
+					let size = game.win.inputs().win_size;
+					game.win.inputs_mut().capture_mouse(&position, size);
 				}
 
 				WindowEvent::MouseInput { button, state, .. } => game
-					.api
-					.external
+					.win
+					.inputs_mut()
 					.mouse_button(&button, state == winit::event::ElementState::Pressed),
 
 				WindowEvent::Destroyed => {
@@ -79,7 +78,7 @@ pub fn play<World: Root>() -> ! {
 				{
 					const FPS_FREQ: f64 = 5.;
 					frame_counter += 1;
-					let now = game.api.external.now;
+					let now = game.win.inputs().now;
 					let time = now.duration_since(prev).as_secs_f64();
 					if time > FPS_FREQ {
 						println!("fps: {}", (frame_counter as f64 / FPS_FREQ) as i32);
@@ -94,7 +93,7 @@ pub fn play<World: Root>() -> ! {
 				{
 					let span = trace_span!("Presenting.");
 					let _gaurd = span.enter();
-					game.api.submit();
+					game.win.submit();
 				}
 			}
 

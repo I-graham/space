@@ -13,14 +13,21 @@ const START_WIN_SIZE: winit::dpi::PhysicalSize<f32> = winit::dpi::PhysicalSize {
 	height: 400.0,
 };
 
-pub struct WinApi {
-	pub window: winit::window::Window,
-	pub external: External,
-	pub output: Vec<Instance>,
+#[derive(PartialEq, Eq)]
+enum DrawType {
+	Cached,
+	Uncached,
+}
+
+pub struct Window {
+	window: winit::window::Window,
+	inputs: External,
+	output: Vec<Instance>,
+	draw_type: DrawType,
 	renderer: reng::Renderer<glsl::Uniform, Instance>,
 }
 
-impl WinApi {
+impl Window {
 	pub fn new<Texture: TextureType>(
 		event_loop: &winit::event_loop::EventLoopWindowTarget<()>,
 	) -> Self {
@@ -40,7 +47,7 @@ impl WinApi {
 		Self {
 			window,
 			renderer,
-			external: External {
+			inputs: External {
 				scroll: 0.,
 				mouse_pos: cgmath::vec2(0.0, 0.0),
 				left_mouse: ButtonState::Up,
@@ -55,21 +62,63 @@ impl WinApi {
 				now: Instant::now(),
 				delta: 0.,
 			},
+			draw_type: DrawType::Uncached,
 			output: vec![],
+		}
+	}
+
+	pub fn inputs_mut(&mut self) -> &mut External {
+		&mut self.inputs
+	}
+
+	pub fn inputs(&self) -> &External {
+		&self.inputs
+	}
+
+	pub fn clip(&mut self, instance: Instance) {
+		//clip unseen instances
+		if self.inputs.visible(instance) {
+			self.output.push(instance);
 		}
 	}
 
 	pub fn clear(&mut self) {
 		//White for debugging purposes.
-		self.output.clear();
 		self.renderer.clear(wgpu::Color::WHITE);
 	}
 
 	pub fn draw(&mut self) {
 		self.renderer.set_uniform(glsl::Uniform {
-			ortho: self.external.camera.proj(self.external.aspect()),
+			ortho: self.inputs.camera.proj(self.inputs.aspect()),
 		});
 		self.renderer.draw(&self.output);
+		self.output.clear();
+	}
+
+	pub fn is_cached(&self, name: &'static str) -> bool {
+		self.renderer.is_cached(name)
+	}
+
+	pub fn cache(&mut self, name: &'static str, instances: &[Instance]) {
+		self.renderer.cache(name, instances)
+	}
+
+	pub fn draw_cached(&mut self, name: &'static str, pos: (f32, f32), scale: f32) {
+		if self.draw_type != DrawType::Cached && self.output.len() != 0 {
+			self.draw();
+		}
+
+		let shift = cgmath::Vector2::<f32>::from(pos);
+
+		self.renderer.set_uniform(glsl::Uniform {
+			ortho: Camera {
+				pos: self.inputs.camera.pos - shift,
+				scale: self.inputs.camera.scale / scale,
+			}
+			.proj(self.inputs.aspect()),
+		});
+
+		self.renderer.draw_cached(name);
 	}
 
 	pub fn submit(&mut self) {
@@ -77,7 +126,7 @@ impl WinApi {
 	}
 
 	pub fn resize(&mut self, dims: winit::dpi::PhysicalSize<u32>) {
-		self.external.win_size = (dims.width, dims.height);
+		self.inputs.win_size = (dims.width, dims.height);
 		self.renderer.resize(dims);
 	}
 

@@ -8,7 +8,7 @@ use super::{Grid, Griddable};
 #[derive(Clone, Copy, EnumDiscriminants, EnumCount)]
 #[strum_discriminants(name(MessageTypes))]
 pub enum Signal {
-	ConsumeFood,
+	Nil,
 }
 
 pub struct Messenger {

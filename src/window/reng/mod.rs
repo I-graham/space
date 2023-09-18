@@ -44,8 +44,7 @@ impl<UniformType: Copy + PartialEq, InstanceType> Renderer<UniformType, Instance
 
 		let instance_buffer = resources.device.create_buffer(&wgpu::BufferDescriptor {
 			label: Some("Instance"),
-			size: (Self::CHUNK_SIZE * std::mem::size_of::<InstanceType>())
-				as wgpu::BufferAddress,
+			size: (Self::CHUNK_SIZE * std::mem::size_of::<InstanceType>()) as wgpu::BufferAddress,
 			usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
 			mapped_at_creation: false,
 		});
@@ -249,6 +248,10 @@ impl<UniformType: Copy + PartialEq, InstanceType> Renderer<UniformType, Instance
 				})],
 				depth_stencil_attachment: None,
 			});
+	}
+
+	pub fn is_cached(&self, name: &'static str) -> bool {
+		self.render_data.cached_buffers.contains_key(name)
 	}
 
 	pub fn cache(&mut self, name: &'static str, instances: &[InstanceType]) {

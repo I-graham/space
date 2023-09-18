@@ -217,6 +217,41 @@ impl<T: Griddable> Grid<T> {
 	}
 }
 
+impl<T, S, A> GameObject for Grid<T>
+where
+	T: Griddable + GameObject<Scene = S, Action = A>,
+{
+	type Scene = S;
+	type Action = Vec<A>;
+
+	fn plan(&self, scene: &Self::Scene, external: &External, messenger: &Sender<Dispatch>) {
+		for item in self.iter() {
+			item.plan(scene, external, messenger);
+		}
+	}
+
+	fn update(&mut self, external: &External, messenger: &Messenger) -> Option<Self::Action> {
+		Some(
+			self.iter_mut()
+				.filter_map(|item| item.update(external, messenger))
+				.collect(),
+		)
+		.filter(|v: &Vec<_>| !v.is_empty())
+	}
+
+	fn render(&self, win: &mut Window) {
+		for item in self.iter() {
+			item.render(win);
+		}
+	}
+
+	fn cleanup(&mut self) {
+		for item in self.iter_mut() {
+			item.cleanup();
+		}
+	}
+}
+
 impl<T: Griddable + Send + Sync> Grid<T> {
 	pub fn par_maintain(&mut self) {
 		use std::sync::*;

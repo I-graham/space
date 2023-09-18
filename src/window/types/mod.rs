@@ -67,13 +67,6 @@ impl External {
 			|| ((px - cx).abs() < max + dx / 2. && (py - cy).abs() < max + dy / 2.)
 	}
 
-	pub fn clip(&self, out: &mut Vec<Instance>, instance: Instance) {
-		//clip unseen instances
-		if self.visible(instance) {
-			out.push(instance);
-		}
-	}
-
 	pub fn instance<T: TextureType>(&self, texture: T) -> Instance {
 		self.texture_map[&texture.name()]
 	}

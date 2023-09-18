@@ -51,8 +51,8 @@ impl<T: Relax> GameObject for Relaxed<T> {
 		self.inner.update(external, messenger)
 	}
 
-	fn render(&self, external: &External, out: &mut Vec<Instance>) {
-		self.inner.render(external, out)
+	fn render(&self, win: &mut Window) {
+		self.inner.render(win)
 	}
 
 	fn instance(&self, external: &External) -> Option<Instance> {
