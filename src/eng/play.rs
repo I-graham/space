@@ -8,7 +8,7 @@ use crate::window::TextureType;
 pub trait Root: GameObject<Scene = ()> + 'static {
 	type Texture: TextureType;
 
-	fn init() -> Self;
+	fn init(external: &External) -> Self;
 }
 
 pub fn play<World: Root>() -> ! {

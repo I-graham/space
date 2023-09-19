@@ -17,7 +17,7 @@ impl<T: TextureType> Display<T> {
 }
 
 impl<T: TextureType> GameObject for Display<T> {
-	type Scene = ();
+	type Scene = Parent;
 	type Action = UIAction;
 
 	fn instance(&self, external: &External) -> Option<Instance> {

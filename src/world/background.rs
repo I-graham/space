@@ -3,8 +3,6 @@ use super::*;
 pub struct Background;
 
 impl Background {
-	const STARS: usize = 500;
-
 	pub fn new() -> Self {
 		Self
 	}
@@ -21,6 +19,8 @@ impl GameObject for Background {
 	}
 
 	fn render(&self, win: &mut Window) {
+		const STARS: usize = 3000;
+
 		let cache = "Stars";
 		if !win.is_cached(cache) {
 			let mut instances = vec![];
@@ -32,12 +32,12 @@ impl GameObject for Background {
 				..win.inputs().instance(Texture::Flat)
 			});
 
-			for _ in 0..Self::STARS {
-				let star = utils::rand_in2d(-1000., 1000.);
+			for _ in 0..STARS {
+				let star = utils::rand_in2d(-2000., 2000.);
 				instances.push(Instance {
-					rotation: 45.0.into(),
+					rotation: 45f32.into(),
 					position: star.into(),
-					color_tint: (0., 0., 0., 1.).into(),
+					scale: (2., 2.).into(),
 					..win.inputs().instance(Texture::Flat)
 				});
 			}

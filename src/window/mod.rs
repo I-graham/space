@@ -104,12 +104,11 @@ impl Window {
 	}
 
 	pub fn draw_cached(&mut self, name: &'static str, pos: (f32, f32), scale: f32) {
-		if self.draw_type != DrawType::Cached && self.output.len() != 0 {
+		if self.draw_type != DrawType::Cached && !self.output.is_empty() {
 			self.draw();
 		}
 
 		let shift = cgmath::Vector2::<f32>::from(pos);
-
 		self.renderer.set_uniform(glsl::Uniform {
 			ortho: Camera {
 				pos: self.inputs.camera.pos - shift,

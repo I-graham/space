@@ -14,7 +14,7 @@ impl<World: Root> GameState<World> {
 	pub fn new(event_loop: &EventLoop<()>) -> Self {
 		let api = Window::new::<World::Texture>(event_loop);
 		Self {
-			world: World::init(),
+			world: World::init(api.inputs()),
 			messenger: Messenger::new(),
 			win: api,
 		}

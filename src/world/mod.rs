@@ -1,10 +1,18 @@
 mod action;
 mod background;
+mod celestial;
+mod interactions;
+mod interface;
+mod ship;
 mod sun;
 mod texture;
 
 pub use action::*;
 pub use background::*;
+pub use celestial::*;
+pub use interactions::*;
+pub use interface::*;
+pub use ship::*;
 pub use sun::*;
 pub use texture::*;
 
@@ -16,17 +24,19 @@ use tracing::trace_span;
 pub struct World {
 	celestials: Grid<Box<dyn Celestial>>,
 	background: Background,
+	interface: Interface,
 }
 
 impl Root for World {
 	type Texture = Texture;
 
-	fn init() -> Self {
-		let celestials = Grid::from_iter(1000.0, [Sun::new().boxed()].into_iter());
+	fn init(external: &External) -> Self {
+		let universe = [Sun::new().boxed(), Ship::new().boxed()];
 
 		Self {
-			celestials,
+			celestials: Grid::from_iter(1000.0, universe.into_iter()),
 			background: Background::new(),
+			interface: Interface::new(external),
 		}
 	}
 }
@@ -39,12 +49,14 @@ impl GameObject for World {
 		let span = trace_span!("Planning");
 		let _guard = span.enter();
 		self.celestials.plan(self, external, messenger);
+		self.interface.plan(self, external, messenger);
 	}
 
 	fn update(&mut self, external: &External, messenger: &Messenger) -> Option<Self::Action> {
 		let span = trace_span!("Updating");
 		let _guard = span.enter();
 		self.celestials.update(external, messenger);
+		self.interface.update(external, messenger);
 		None
 	}
 
@@ -53,52 +65,12 @@ impl GameObject for World {
 		let _guard = span.enter();
 		self.background.render(win);
 		self.celestials.render(win);
+		self.interface.render(win);
 	}
 
 	fn cleanup(&mut self) {
 		let span = trace_span!("Debug info");
 		let _guard = span.enter();
 		self.celestials.cleanup();
-	}
-}
-
-trait Celestial: Griddable + GameObject<Scene = World, Action = Action> + 'static {
-	fn boxed(self) -> Box<dyn Celestial>
-	where
-		Self: Sized,
-	{
-		Box::new(self) as Box<dyn Celestial>
-	}
-}
-impl<T: Griddable + GameObject<Scene = World, Action = Action> + 'static> Celestial for T {}
-
-impl GameObject for Box<dyn Celestial> {
-	type Scene = World;
-	type Action = Action;
-
-	fn plan(&self, scene: &Self::Scene, external: &External, messenger: &Sender<Dispatch>) {
-		(**self).plan(scene, external, messenger)
-	}
-
-	fn update(&mut self, external: &External, messenger: &Messenger) -> Option<Self::Action> {
-		(**self).update(external, messenger)
-	}
-
-	fn render(&self, win: &mut Window) {
-		(**self).render(win)
-	}
-
-	fn cleanup(&mut self) {
-		(**self).cleanup()
-	}
-}
-
-impl Griddable for Box<dyn Celestial> {
-	fn alive(&self) -> bool {
-		(**self).alive()
-	}
-
-	fn pos(&self) -> (f32, f32) {
-		(**self).pos()
 	}
 }

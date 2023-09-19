@@ -11,7 +11,7 @@ use crate::window::*;
 
 pub enum UIAction {}
 
-pub trait UIElement: GameObject<Scene = (), Action = UIAction> {
+pub trait UIElement: GameObject<Scene = Parent, Action = UIAction> {
 	fn rect(&self) -> &UIRect;
 	fn rect_mut(&mut self) -> &mut UIRect;
 	fn propagate_global(&mut self, _parent: &UIRect);

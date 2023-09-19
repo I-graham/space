@@ -7,6 +7,13 @@ pub struct Parent {
 }
 
 impl Parent {
+	pub fn screen(external: &External) -> Self {
+		Self {
+			children: vec![],
+			rect: UIRect::screen(external),
+		}
+	}
+
 	pub fn plus(&mut self, ui: impl UIElement + 'static) -> &mut Self {
 		self.children.push(Box::new(ui));
 		self
@@ -14,7 +21,7 @@ impl Parent {
 }
 
 impl GameObject for Parent {
-	type Scene = ();
+	type Scene = Parent;
 	type Action = UIAction;
 
 	fn plan(&self, scene: &Self::Scene, external: &External, messenger: &Sender<Dispatch>) {

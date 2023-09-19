@@ -98,10 +98,10 @@ impl<T: Griddable> Grid<T> {
 		let (hi_x, hi_y) = Self::grid_cell(self.scale, (x + radius, y + radius));
 		let (lo_x, lo_y) = Self::grid_cell(self.scale, (x - radius, y - radius));
 
-		(lo_x..=hi_x)
-			.flat_map(move |i| (lo_y..=hi_y).map(move |j| (i, j)))
-			.filter_map(|cell| self.grid.get(&cell))
-			.flatten()
+		self.grid
+			.iter()
+			.filter(move |&((x, y), _)| (lo_x..=hi_x).contains(x) && (lo_y..=hi_y).contains(y))
+			.flat_map(|(_, v)| v.iter())
 			.map(move |&index| {
 				let item = &self.elems[index];
 				(dist(item.pos(), (x, y)), item)

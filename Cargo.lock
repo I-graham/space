@@ -78,28 +78,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ants"
-version = "0.1.0"
-dependencies = [
- "cgmath",
- "fnv",
- "futures",
- "image",
- "log",
- "noise",
- "rand 0.8.5",
- "rayon",
- "shaderc",
- "strum",
- "strum_macros",
- "tracing",
- "tracing-flame",
- "tracing-subscriber",
- "wgpu",
- "winit",
-]
-
-[[package]]
 name = "approx"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1640,6 +1618,28 @@ dependencies = [
  "wayland-client",
  "wayland-cursor",
  "wayland-protocols",
+]
+
+[[package]]
+name = "space"
+version = "0.1.0"
+dependencies = [
+ "cgmath",
+ "fnv",
+ "futures",
+ "image",
+ "log",
+ "noise",
+ "rand 0.8.5",
+ "rayon",
+ "shaderc",
+ "strum",
+ "strum_macros",
+ "tracing",
+ "tracing-flame",
+ "tracing-subscriber",
+ "wgpu",
+ "winit",
 ]
 
 [[package]]
