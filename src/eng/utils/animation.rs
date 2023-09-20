@@ -2,7 +2,21 @@ use super::*;
 use crate::window::TextureType;
 use std::time::Instant;
 
-type Curve = fn(f32) -> f32;
+pub type Curve = fn(f32) -> f32;
+
+pub mod curves {
+	use super::Curve;
+	use std::f32::consts::*;
+
+	pub const LINEAR: Curve = |f| f;
+	pub const FIRST: Curve = |_| 0.;
+	pub const LAST: Curve = |_| 1.;
+	pub const REVERSE: Curve = |f| 1. - f;
+	pub const SIN: Curve = |f| (1. - (f * PI).cos()) / 2.;
+	pub const SIN_SQ: Curve = |f| SIN(f).powf(2.);
+	pub const REV_SIN_SQ: Curve = |f| SIN(1.0 - f).powf(2.);
+	pub const SIN_BOUNCE: Curve = |f| SIN(2. * f);
+}
 
 #[derive(Clone)]
 pub struct Animation<Texture: TextureType> {
@@ -13,17 +27,7 @@ pub struct Animation<Texture: TextureType> {
 	pub repeat: f32, //Use f32::INFINITY to repeat forever
 }
 
-use std::f32::consts::*;
 impl<Texture: TextureType> Animation<Texture> {
-	pub const LINEAR: Curve = |f| f;
-	pub const FIRST: Curve = |_| 0.;
-	pub const LAST: Curve = |_| 1.;
-	pub const REVERSE: Curve = |f| 1. - f;
-	pub const SIN: Curve = |f| (1. - (f * PI).cos()) / 2.;
-	pub const SIN_SQ: Curve = |f| Self::SIN(f).powf(2.);
-	pub const REV_SIN_SQ: Curve = |f| Self::SIN(1.0 - f).powf(2.);
-	pub const SIN_BOUNCE: Curve = |f| Self::SIN(2. * f);
-
 	pub fn new(texture: Texture, duration: f32, curve: fn(f32) -> f32, repeat: f32) -> Self {
 		Self {
 			start: Instant::now(),

@@ -1,13 +1,13 @@
 use super::*;
 
-struct Display<T: TextureType> {
+pub struct Display<T: TextureType> {
 	animation: Animation<T>,
 	lcl_rect: UIRect,
 	gbl_rect: UIRect,
 }
 
 impl<T: TextureType> Display<T> {
-	fn from(animation: Animation<T>) -> Self {
+	pub fn new(animation: Animation<T>) -> Self {
 		Self {
 			animation,
 			lcl_rect: Default::default(),
@@ -21,12 +21,15 @@ impl<T: TextureType> GameObject for Display<T> {
 	type Action = UIAction;
 
 	fn instance(&self, external: &External) -> Option<Instance> {
-		Some(Instance {
-			screen_relative: GLbool::True,
-			position: self.gbl_rect.offset.into(),
-			scale: self.gbl_rect.size.into(),
-			..self.animation.frame(external)
-		})
+		Some(
+			Instance {
+				screen_relative: GLbool::True,
+				position: self.gbl_rect.offset.into(),
+				scale: self.gbl_rect.size.into(),
+				..self.animation.frame(external)
+			}
+			.scale2(1. / external.aspect(), 1.),
+		)
 	}
 }
 

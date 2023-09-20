@@ -1,20 +1,18 @@
 use super::*;
 
-pub struct Ship {
+pub struct Planet {
 	phys: Physics,
 }
 
-impl Ship {
+impl Planet {
 	pub fn new() -> Self {
-		let mut phys = Physics::at_rest(10., 16.);
-		phys.pos = cgmath::vec2(50., 50.);
-		phys.vel = cgmath::vec2(-5., 20.);
-
-		Self { phys }
+		Self {
+			phys: Physics::at_rest(1000., 64.),
+		}
 	}
 }
 
-impl GameObject for Ship {
+impl GameObject for Planet {
 	type Scene = World;
 	type Action = Action;
 
@@ -31,14 +29,12 @@ impl GameObject for Ship {
 	fn instance(&self, external: &External) -> Option<Instance> {
 		Some(Instance {
 			position: self.phys.pos.into(),
-			..external
-				.instance(Texture::Ship)
-				.nth_frame(0, Texture::Ship.frame_count())
+			..external.instance(Texture::Sun)
 		})
 	}
 }
 
-impl Celestial for Ship {
+impl Celestial for Planet {
 	fn phys(&self) -> &Physics {
 		&self.phys
 	}

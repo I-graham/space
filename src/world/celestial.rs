@@ -1,10 +1,7 @@
 use super::*;
-use cgmath::*;
 
 pub trait Celestial: Griddable + GameObject<Scene = World, Action = Action> + 'static {
-	fn coords(&self) -> Vector2<f32>;
-	fn mass(&self) -> f32;
-	fn radius(&self) -> f32;
+	fn phys(&self) -> &Physics;
 
 	fn boxed(self) -> Box<dyn Celestial>
 	where
@@ -16,7 +13,7 @@ pub trait Celestial: Griddable + GameObject<Scene = World, Action = Action> + 's
 
 impl<C: Celestial> Griddable for C {
 	fn pos(&self) -> (f32, f32) {
-		self.coords().into()
+		self.phys().pos.into()
 	}
 }
 
@@ -47,6 +44,6 @@ impl Griddable for Box<dyn Celestial> {
 	}
 
 	fn pos(&self) -> (f32, f32) {
-		(**self).coords().into()
+		(**self).phys().pos.into()
 	}
 }

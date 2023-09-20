@@ -1,16 +1,16 @@
-use utils::ui::Parent;
+use utils::ui;
 
 use super::*;
 
 pub struct Interface {
-	ui: Parent,
+	ui: ui::Parent,
 }
 
 impl Interface {
 	pub fn new(external: &External) -> Self {
-		Self {
-			ui: Parent::screen(external),
-		}
+		let ui = ui::Parent::screen(external);
+
+		Self { ui }
 	}
 }
 

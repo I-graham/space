@@ -14,7 +14,7 @@ impl Parent {
 		}
 	}
 
-	pub fn plus(&mut self, ui: impl UIElement + 'static) -> &mut Self {
+	pub fn with(mut self, ui: impl UIElement + 'static) -> Self {
 		self.children.push(Box::new(ui));
 		self
 	}
