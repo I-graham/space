@@ -8,6 +8,7 @@ pub enum Texture {
 	Flat,
 	Sun,
 	Ship,
+	Neptune,
 }
 
 impl TextureType for Texture {

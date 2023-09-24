@@ -111,30 +111,37 @@ impl<T: Griddable> Grid<T> {
 
 	//pairs not guaranteed to come out in any particular order.
 	//all pairs are unordered and distinctly located.
-	pub fn nearby_pairs(&self, distance: f32) -> impl Iterator<Item = (&T, &T)> {
+	pub fn apply_to_pairs(&mut self, distance: f32, mut f: impl FnMut(&mut T, &mut T)) {
 		let radius = (distance / self.scale).ceil() as i32;
 
-		let is_nearby =
-			move |a: &T, b: &T| -> bool { a.pos() < b.pos() && dist(a.pos(), b.pos()) <= distance };
-
-		self.grid
+		let near_cells = self
+			.grid
 			.iter()
-			.flat_map(move |(&(cx, cy), ids)| {
-				(cx..=cx + radius)
-					.flat_map(move |ix| (cy..=cy + radius).map(move |iy| (ix, iy)))
-					.filter_map(move |cell2| self.grid.get(&cell2))
-					.map(move |jds| (ids, jds))
-			})
-			.flat_map(move |(ids, jds)| {
-				let ielems = ids.iter().map(|&i| &self.elems[i]);
-				let jelems = jds.iter().map(|&j| &self.elems[j]);
-				ielems.flat_map(move |i| {
-					jelems
-						.clone()
-						.filter(move |j| is_nearby(i, j))
-						.map(move |j| (i, j))
+			.flat_map(|(&(ax, ay), ids)| {
+				self.grid.iter().filter_map(move |((bx, by), jds)| {
+					if (ax - radius..=ax + radius).contains(bx)
+						&& (ay - radius..=ay + radius).contains(by)
+					{
+						Some((ids, jds))
+					} else {
+						None
+					}
 				})
 			})
+			.collect::<Vec<_>>();
+
+		for (is, js) in near_cells {
+			for &i in is {
+				for &j in js {
+					if i < j {
+						let (a, b) = self.elems.borrow_2(i, j);
+						if dist(a.pos(), b.pos()) <= distance {
+							f(a, b);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	pub fn retain<P: FnMut(&T) -> bool>(&mut self, mut predicate: P) {
@@ -231,12 +238,14 @@ where
 	}
 
 	fn update(&mut self, external: &External, messenger: &Messenger) -> Option<Self::Action> {
-		Some(
-			self.iter_mut()
-				.filter_map(|item| item.update(external, messenger))
-				.collect(),
-		)
-		.filter(|v: &Vec<_>| !v.is_empty())
+		let action = self
+			.iter_mut()
+			.filter_map(|item| item.update(external, messenger))
+			.collect();
+
+		self.maintain();
+
+		Some(action).filter(|v: &Vec<_>| !v.is_empty())
 	}
 
 	fn render(&self, win: &mut Window) {

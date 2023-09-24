@@ -25,21 +25,25 @@ impl GameObject for Background {
 		if !win.is_cached(cache) {
 			let mut instances = vec![];
 
-			instances.push(Instance {
-				color_tint: (0., 0., 0., 1.).into(),
-				scale: (2., 2.).into(),
-				screen_relative: GLbool::True,
-				..win.inputs().instance(Texture::Flat)
-			});
+			instances.push(
+				Instance {
+					color_tint: (0., 0., 0., 1.).into(),
+					screen_relative: GLbool::True,
+					..win.inputs().instance(Texture::Flat)
+				}
+				.scale(2.),
+			);
 
 			for _ in 0..STARS {
 				let star = utils::rand_in2d(-2000., 2000.);
-				instances.push(Instance {
-					rotation: 45f32.into(),
-					position: star.into(),
-					scale: (2., 2.).into(),
-					..win.inputs().instance(Texture::Flat)
-				});
+				instances.push(
+					Instance {
+						rotation: 45f32.into(),
+						position: star.into(),
+						..win.inputs().instance(Texture::Flat)
+					}
+					.scale(2.),
+				);
 			}
 
 			win.cache(cache, &instances);

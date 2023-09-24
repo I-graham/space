@@ -9,8 +9,8 @@ use std::time::Instant;
 pub use types::*;
 
 const START_WIN_SIZE: winit::dpi::PhysicalSize<f32> = winit::dpi::PhysicalSize {
-	width: 400.0,
-	height: 400.0,
+	width: 800.0,
+	height: 600.0,
 };
 
 #[derive(PartialEq, Eq)]
@@ -56,7 +56,7 @@ impl Window {
 				texture_map,
 				camera: Camera {
 					pos: cgmath::vec2(0., 0.),
-					scale: 256.,
+					scale: 600.,
 				},
 				win_size: (size.width, size.height),
 				now: Instant::now(),

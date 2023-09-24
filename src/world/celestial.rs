@@ -2,6 +2,7 @@ use super::*;
 
 pub trait Celestial: Griddable + GameObject<Scene = World, Action = Action> + 'static {
 	fn phys(&self) -> &Physics;
+	fn phys_mut(&mut self) -> &mut Physics;
 
 	fn boxed(self) -> Box<dyn Celestial>
 	where

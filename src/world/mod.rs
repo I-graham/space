@@ -23,8 +23,10 @@ use crate::window::*;
 use eng::*;
 use tracing::trace_span;
 
+type Universe = Grid<Box<dyn Celestial>>;
+
 pub struct World {
-	celestials: Grid<Box<dyn Celestial>>,
+	universe: Universe,
 	background: Background,
 	interface: Interface,
 }
@@ -33,10 +35,14 @@ impl Root for World {
 	type Texture = Texture;
 
 	fn init(external: &External) -> Self {
-		let universe = [Sun::new().boxed(), Ship::new().boxed()];
+		use std::iter::repeat_with;
+		let universe = repeat_with(|| Sun::random().boxed())
+			.take(10)
+			.chain(repeat_with(|| Planet::random().boxed()).take(5))
+			.chain(repeat_with(|| Ship::random().boxed()).take(5));
 
 		Self {
-			celestials: Grid::from_iter(1000.0, universe.into_iter()),
+			universe: Universe::from_iter(1000.0, universe),
 			background: Background::new(),
 			interface: Interface::new(external),
 		}
@@ -50,29 +56,35 @@ impl GameObject for World {
 	fn plan(&self, _: &(), external: &External, messenger: &Sender<Dispatch>) {
 		let span = trace_span!("Planning");
 		let _guard = span.enter();
-		self.celestials.plan(self, external, messenger);
+
 		self.interface.plan(self, external, messenger);
+		self.universe.plan(self, external, messenger);
 	}
 
 	fn update(&mut self, external: &External, messenger: &Messenger) -> Option<Self::Action> {
 		let span = trace_span!("Updating");
 		let _guard = span.enter();
-		self.celestials.update(external, messenger);
+
 		self.interface.update(external, messenger);
+		self.universe.update(external, messenger);
+		apply_collisions(&mut self.universe);
+
 		None
 	}
 
 	fn render(&self, win: &mut Window) {
 		let span = trace_span!("Rendering");
 		let _guard = span.enter();
-		self.background.render(win);
-		self.celestials.render(win);
+
 		self.interface.render(win);
+		self.background.render(win);
+		self.universe.render(win);
 	}
 
 	fn cleanup(&mut self) {
 		let span = trace_span!("Debug info");
 		let _guard = span.enter();
-		self.celestials.cleanup();
+
+		self.universe.cleanup();
 	}
 }

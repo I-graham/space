@@ -94,6 +94,22 @@ impl<T> FreeList<T> {
 		}
 	}
 
+	//Ugly solution to a borrow checking problem
+	pub fn borrow_2(&mut self, i: usize, j: usize) -> (&mut T, &mut T) {
+		debug_assert!(i != j);
+		let slice = self.inner.as_mut_slice();
+		
+		let min = i.min(j);
+		let max = i.max(j);
+
+		let (p1, p2) = slice.split_at_mut(max);
+		let (a, b) = (&mut p1[min], &mut p2[0]);
+		match (a, b) {
+			(Elem::Obj(a), Elem::Obj(b)) => (a, b),
+			_ => panic!("Attempted to access empty freelist slot."),
+		}
+	}
+
 	pub fn iter(&self) -> impl Iterator<Item = &T> {
 		self.inner.iter().filter_map(|elem| match elem {
 			Elem::Obj(item) => Some(item),

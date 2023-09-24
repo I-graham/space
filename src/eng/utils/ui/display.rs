@@ -21,15 +21,14 @@ impl<T: TextureType> GameObject for Display<T> {
 	type Action = UIAction;
 
 	fn instance(&self, external: &External) -> Option<Instance> {
-		Some(
-			Instance {
-				screen_relative: GLbool::True,
-				position: self.gbl_rect.offset.into(),
-				scale: self.gbl_rect.size.into(),
-				..self.animation.frame(external)
-			}
-			.scale2(1. / external.aspect(), 1.),
-		)
+		Instance {
+			screen_relative: GLbool::True,
+			position: self.gbl_rect.offset.into(),
+			scale: self.gbl_rect.size.into(),
+			..self.animation.frame(external)
+		}
+		.scale2(1. / external.aspect(), 1.)
+		.into()
 	}
 }
 
